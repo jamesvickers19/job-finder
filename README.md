@@ -1,10 +1,11 @@
 # job-finder
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
+A small tool for finding remote jobs for Clojure, but could be adapted for other
+languages.  Basically works by scraping a company list, then looking for the 'jobs'
+page on each company site, then seeing if that page contains e.g. 'remote'.
+The search results can be returned as a data structure organized by whether
+the company site was found, whether it had a 'jobs' page, and whether the 'jobs'
+page had 'remote'.
 
 ## License
 
