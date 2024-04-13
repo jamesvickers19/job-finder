@@ -7,6 +7,8 @@ The search results can be returned as a data structure organized by whether
 the company site was found, whether it had a 'jobs' page, and whether the 'jobs'
 page had 'remote'.
 
+`browser_page_opener.html` can be used by pasting a job results file contents in there to open tabs for each result.
+
 ## License
 
 Copyright © 2019 FIXME
