@@ -37,33 +37,39 @@
 (defn- old-new-company-names
   [company-name-with-acquired-by]
   (let [[old new] (.split company-name-with-acquired-by "\\(acquired by")]
-    [(with-dot-com old)
-     (-> new (.split "\\)") first with-dot-com)]))
+    [old
+     (-> new (.split "\\)") first)]))
+
+(defn company-desc->domains
+  [company-desc]
+  (let [company-desc (.toLowerCase company-desc)]
+    (cond
+      ; if it says 'acquired by', try old and new company name
+      (.contains company-desc "(acquired by") (->> company-desc
+                                                   old-new-company-names
+                                                   (mapcat company-desc->domains))
+      ; if name has a dot, just use the name
+      (.contains company-desc ".") [company-desc]
+      ; if name has a parenthesis, take everything before it
+      (.contains company-desc "(") [(-> company-desc
+                                        (.split "\\(")
+                                        first
+                                        with-dot-com)]
+      ; if name has slash, try names before and after it
+      (.contains company-desc "/") (mapv with-dot-com (.split company-desc "/"))
+      :else [(with-dot-com company-desc)])))
 
 (defn company-desc->urls
   [company-desc]
-  (when company-desc
-    (let [company-name (.toLowerCase company-desc)
-          domains (cond
-                    ; if name has a dot, just use the name
-                    (.contains company-name ".") [company-name]
-                    ; if it says 'acquired by', try old and new company name
-                    (.contains company-name "(acquired by") (old-new-company-names company-name)
-                    ; if name has a parenthesis, take everything before it
-                    (.contains company-name "(") [(-> company-name
-                                                      (.split "\\(")
-                                                      first
-                                                      with-dot-com)]
-                    ; if name has slash, try names before and after it
-                    (.contains company-name "/") (mapv with-dot-com (.split company-name "/"))
-                    :else [(with-dot-com company-name)])]
-      (map (comp with-https remove-spaces) domains))))
+  (some->> company-desc
+           company-desc->domains
+           (map (comp with-https remove-spaces))))
 
 (comment
-  (map company-desc->urls ["LonoCloud (acquired by ViaSat)"
-                           "8th Light"
-                           "Iris.tv"
-                           "Marktbauer/Comida da gente"]))
+  (company-desc->urls "LonoCloud (acquired by ViaSact)")
+  (company-desc->urls "8th Light")
+  (company-desc->urls "Iris.tv")
+  (company-desc->urls "Marktbauer/Comida da gente"))
 
 (defn url-encode
   [s]
