@@ -97,7 +97,6 @@
   (let [page (get-page "https://clojure.org/community/companies")
         company-list-items (.getElementsByTag page "li")]
     (->> company-list-items
-         (take 5)
          (map #(.text %))
          (map find-company-urls)
          flatten
